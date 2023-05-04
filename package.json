@@ -1,0 +1,29 @@
+{
+  "name": "api-gamelcr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "serverless offline start --reloadHandler",
+    "deploy": "serverless deploy"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.115",
+    "@types/node": "^18.16.3",
+    "esbuild": "^0.17.18",
+    "serverless": "^3.30.1",
+    "serverless-esbuild": "^1.43.1",
+    "serverless-offline": "^12.0.4",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.326.0",
+    "@aws-sdk/lib-dynamodb": "^3.326.0",
+    "aws-sdk": "^2.1371.0",
+    "dotenv": "^16.0.3",
+    "redis": "^4.6.6"
+  }
+}

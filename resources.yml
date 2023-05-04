@@ -1,0 +1,54 @@
+Resources:
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: ${env:aws_bus_name}
+
+  TargetSQS:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${env:aws_sqs_name}
+
+  TargetSQSRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName: !GetAtt EventBus.Arn
+      EventPattern:
+        source:
+          - "gamelcr-app"
+        detail-type:
+          - "Algoritmo para resolver el juego LCR"
+      Targets:
+        - Arn: !GetAtt TargetSQS.Arn
+          Id: game-event-bus-target-sqs
+
+  TargetSQSPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref TargetSQS
+      PolicyDocument:
+        Statement :
+          - Effect: "Allow"
+            Action:
+              - "SQS:SendMessage"
+            Resource: !GetAtt TargetSQS.Arn
+            Principal: 
+              Service: events.amazonaws.com
+
+  gamelcrTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${env:aws_dynamodb_table}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      StreamSpecification:
+          StreamViewType: NEW_IMAGE
+

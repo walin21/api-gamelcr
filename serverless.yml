@@ -1,0 +1,50 @@
+service: api-gamelcr
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ${env:aws_region}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "events:PutEvents"
+        - dynamodb:*
+        - "dynamodb:ListStreams"
+      Resource: "*"
+
+functions:
+  main: 
+    handler: src/gamelcr/main.handler
+    events:
+      - httpApi: 
+          method: POST
+          path: /api-gamelcr
+      - stream:
+          type: dynamodb
+          batchSize: 1
+          startingPosition: LATEST
+          arn:
+            Fn::GetAtt:
+              - gamelcrTable
+              - StreamArn
+
+  sendsqscontroller:
+    handler: src/controllers/sendsqscontroller.handler
+    name: ${env:aws_sqs_name}
+    events:
+      - sqs: arn:aws:sqs:${env:aws_region}:${env:aws_accountid}:${env:aws_sqs_name}
+
+resources:
+  - ${file(./resources.yml)}
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+
+plugins:
+  - serverless-offline
+  - serverless-esbuild
